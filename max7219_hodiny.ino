@@ -2,6 +2,9 @@
 #include <binary.h>
 #include <Matrix.h>
 
+#include <stdio.h>
+#include <string.h>
+
 
 // Pocet displayov na 1 pasik (serivovo zapojeny).
 #define pocetDisplayov 4
@@ -19,27 +22,29 @@
 #define tlacidloMinus 8
 #define tlacidloHotovo 7
 
-Sprite startAnimacia[7] = {Sprite(8, 8, B00000000, B00000000, B00000000, B00011000, B00011000, B00000000, B00000000, B00000000), 
-                        Sprite(8, 8, B00000000, B00000000, B00011000, B00111100, B00111100, B00011000, B00000000, B00000000), 
-                        Sprite(8, 8, B00000000, B00011000, B00111100, B01111110, B01111110, B00111100, B00011000, B00000000), 
-                        Sprite(8, 8, B00011000, B00111100, B01111110, B11111111, B11111111, B01111110, B00111100, B00011000), 
-                        Sprite(8, 8, B00111100, B01111110, B11111111, B11111111, B11111111, B11111111, B01111110, B00111100), 
-                        Sprite(8, 8, B01111110, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B01111110), 
-                        Sprite(8, 8, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111)};
-
 
 Matrix led = Matrix(dataIn, clock, cs, pocetDisplayov);
 Matrix led2 = Matrix(dataIn2, clock2, cs2, pocetDisplayov);
 
 Sprite plny = Sprite(8, 8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 Sprite prazdny = Sprite(8, 8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0);
+Sprite startAnimacia[7] = {
+  Sprite(8, 8, B00000000, B00000000, B00000000, B00001100, B00001100, B00000000, B00000000, B00000000),
+  Sprite(8, 8, B00000000, B00000000, B00000000, B00011110, B00011110, B00000000, B00000000, B00000000),
+  Sprite(8, 8, B00000000, B00000000, B00000000, B00111111, B00111111, B00000000, B00000000, B00000000),
+  Sprite(8, 8, B00000000, B00000000, B00000000, B11111111, B11111111, B00000000, B00000000, B00000000),
+  Sprite(8, 8, B00000000, B00000000, B11111111, B11111111, B11111111, B11111111, B00000000, B00000000),
+  Sprite(8, 8, B00000000, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B00000000),
+  Sprite(8, 8, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111),
+};
 
 bool stlaceneZacat, stlacenePlus, stlaceneMinus, stlaceneHotovo;
+int pocet = 0;
 
 
 void setup() {
 
-  // Serial.begin(9600);
+  Serial.begin(9600);
 
   pinMode(tlacidloZacat, INPUT_PULLUP);
   pinMode(tlacidloPlus, INPUT_PULLUP);
@@ -49,34 +54,32 @@ void setup() {
   led.clear();
   led2.clear();
 
-}
-
-
-void loop() {
-
   for (int i = 0; i < 7; i++) {
     for (int x = 0; x < 4; x++) {
 
-      int tlacidla[4] = {tlacidloZacat, tlacidloPlus, tlacidloMinus, tlacidloHotovo};
-
-      if (digitalRead(tlacidla[x]) == LOW) {
-
-        led.write(x*8, 0, startAnimacia[i]);
-        delay(1);
-        led2.write(x*8, 0, startAnimacia[i]);
-
-      } else {
-
-        led.write(x*8, 0, prazdny);
-        delay(1);
-        led2.write(x*8, 0, prazdny);
-
-      }
-
+      led2.write(x * 8, 0, startAnimacia[i]);
+      led.write(x * 8, 0, startAnimacia[i]);
+      
     }
+    delay(75);
+  }
 
+  /*
+  for (int x = 0; x < 4; x++) {
+    led.write(x * 8, 0, prazdny);
     delay(10);
+  }
+  for (int x = 0; x < 4; x++) {
+    led2.write(x * 8, 0, plny);
+    delay(10);
+  }
 
-  } 
+  led.write(0, 0, plny);
+  */
+
+}
+  
+
+void loop() {
 
 }
