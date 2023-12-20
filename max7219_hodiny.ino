@@ -165,6 +165,9 @@ void setup() {
   led.clear();
   led2.clear();
 
+  led.setBrightness(15);
+  led2.setBrightness(15);
+
   for (int i = 0; i < 7; i++) {
     for (int x = 0; x < 4; x++) {
 
@@ -197,6 +200,14 @@ void setup() {
 void loop() {
 
   if (pocitadlo >= 100) {
+
+    if (rtc.getHour(h12flag, pmFlag) >= 21 || rtc.getHour(h12flag, pmFlag) <= 6) {
+      led.setBrightness(4);
+      led2.setBrightness(4);
+    } else {
+      led.setBrightness(15);
+      led2.setBrightness(15);
+    }
 
     if (status == 0) {
       rutinaHodiny();
