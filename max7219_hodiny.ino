@@ -36,10 +36,19 @@ Matrix led2 = Matrix(dataIn2, clock2, cs2, pocetDisplayov);
 Sprite plny = Sprite(8, 8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 Sprite prazdny = Sprite(8, 8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0);
 
-Sprite a[2] = {
-  Sprite(8, 8, B00110011, B00110011, B00110011, B00110011, B00110011, B00110011, B00111111, B00111111),
-  Sprite(8, 8, B00110011, B00110011, B00110011, B00110011, B00110011, B00110011, B00111111, B00111111)
-};
+// m, s, i, c, d, n, h, o, t, e, k, u
+Sprite c = Sprite(8, 8, B00111100, B00000010, B00000001, B00000001, B00000001, B00000010, B00111100, B00000000);
+Sprite d = Sprite(8, 8, B00000000, B00001110, B00010010, B00100010, B00100010, B00010010, B00001110, B00000000);
+Sprite e = Sprite(8, 8, B00000000, B00011110, B00000010, B00000010, B00001110, B00000010, B00011110, B00000000);
+Sprite h = Sprite(8, 8, B00000000, B00010010, B00010010, B00010010, B00011110, B00010010, B00010010, B00000000);
+Sprite i = Sprite(8, 8, B00000000, B00001110, B00000100, B00000100, B00000100, B00000100, B00001110, B00000000);
+Sprite k = Sprite(8, 8, B00000000, B00010010, B00010010, B00001010, B00000110, B00001010, B00010010, B00000000);
+Sprite m = Sprite(8, 8, B00000000, B10100000, B10100000, B10100100, B10101010, B00010001, B00000000, B00000000);
+Sprite n = Sprite(8, 8, B00000000, B00000000, B00100010, B00110010, B00101010, B00100110, B00100010, B00000000);
+Sprite o = Sprite(8, 8, B00000000, B00011110, B00100001, B00100001, B00100001, B00100001, B00011110, B00000000);
+Sprite s = Sprite(8, 8, B00000000, B00011110, B00010000, B00010000, B00011110, B00000010, B00011110, B00000000);
+Sprite t = Sprite(8, 8, B00000000, B00000100, B00000100, B00000100, B00000100, B00000100, B00011111, B00000000);
+Sprite u = Sprite(8, 8, B00000000, B00001100, B00010010, B00100001, B00100001, B00100001, B00100001, B00000000);
 
 Sprite cifra0[2] = {
   Sprite(8, 8, B00110011, B00110011, B00110011, B00110011, B00110011, B00110011, B00111111, B00111111),
@@ -273,13 +282,17 @@ void loop() {
     }
     
     if (mesiac < 10) {
-      zobraz(0, -1);
-      zobraz(1, -1);
+      led.write(0, 0, m);
+      led.write(8, 0, s);
+      led2.write(0, 0, i);
+      led2.write(8, 0, c);
       zobraz(2, -1);
       zobraz(3, mesiac);
     } else {
-      zobraz(0, -1);
-      zobraz(1, -1);
+      led.write(0, 0, m);
+      led.write(8, 0, s);
+      led2.write(0, 0, i);
+      led2.write(8, 0, c);
       zobraz(2, mesiac / 10);
       zobraz(3, mesiac % 10);
     }
@@ -302,8 +315,10 @@ void loop() {
     }
     
     hodiny(den);
-    zobraz(2, -1);
-    zobraz(3, -1);
+    led.write(16, 0, d);
+    led.write(24, 0, e);
+    led2.write(16, 0, n);
+    led2.write(24, 0, prazdny);
 
     if (statusHotovo) {
       status = 4;
@@ -323,8 +338,10 @@ void loop() {
     }
     
     hodiny(hodina);
-    zobraz(2, -1);
-    zobraz(3, -1);
+    led.write(16, 0, h);
+    led.write(24, 0, o);
+    led2.write(16, 0, d);
+    led2.write(24, 0, n);
 
     if (statusHotovo) {
       status = 5;
@@ -344,8 +361,10 @@ void loop() {
     }
     
     minuty(minuta);
-    zobraz(0, -1);
-    zobraz(1, -1);
+    led.write(0, 0, m);
+    led.write(8, 0, i);
+    led2.write(0, 0, n);
+    led2.write(8, 0, t);
 
     if (statusHotovo) {
       status = 6;
@@ -365,8 +384,10 @@ void loop() {
     }
     
     minuty(sekunda);
-    zobraz(0, -1);
-    zobraz(1, -1);
+    led.write(0, 0, s);
+    led.write(8, 0, e);
+    led2.write(0, 0, k);
+    led2.write(8, 0, n);
 
     if (statusHotovo) {
       status = 0;
