@@ -22,6 +22,8 @@
 #define tlacidloMinus 8
 #define tlacidloHotovo 7
 
+#define odpocetTlacidiel 5 // ms
+
 
 DS3231 rtc;
 
@@ -115,8 +117,27 @@ Sprite loadingAnimacia[23] = {
   Sprite(8, 8, B00000000, B00000000, B00000000, B00000000, B00000000, B00000011, B00000011, B00000000)
 };
 
-bool stlaceneZacat, stlacenePlus, stlaceneMinus, stlaceneHotovo;
-int pocet = 0;
+int zacatOdpocet = 0;
+int plusOdpocet = 0;
+int minusOdpocet = 0;
+int hotovoOdpocet = 0;
+int pocitadlo = 0;
+
+// 0 = HODINY
+// 1 = NASTAVOVANIE ROKU
+// 2 = NASTAVOVANIE MESIACU
+// 3 = NASTAVOVANIE DNA
+// 4 = NASTAVOVANIE HODINY
+// 5 = NASTAVOVANIE MINUT
+// 6 = NASTAVOVANIE SEKUND
+int status = 0;
+
+int rok = 23;
+int mesiac;
+int den;
+int hodina = 12;
+int minuta = 30;
+int sekunda = 30;
 
 
 void setup() {
@@ -129,6 +150,8 @@ void setup() {
   pinMode(tlacidloHotovo, INPUT_PULLUP);
 
   Wire.begin();
+  mesiac = rtc.getMonth(century);
+  den = rtc.getDate();
   
   led.clear();
   led2.clear();
@@ -159,9 +182,224 @@ void setup() {
   led2.clear();
 
 }
-  
 
+
+// 1 loop ~ 1 ms
 void loop() {
+
+  if (pocitadlo >= 100) {
+
+    if (status == 0) {
+      rutinaHodiny();
+    }
+
+    pocitadlo = 0;
+  }
+
+  pocitadlo++;
+  delay(1);
+
+  bool statusZacat = digitalRead(tlacidloZacat) == LOW;
+  bool statusPlus = digitalRead(tlacidloPlus) == LOW;
+  bool statusMinus = digitalRead(tlacidloMinus) == LOW;
+  bool statusHotovo = digitalRead(tlacidloHotovo) == LOW;
+
+  if (zacatOdpocet > 0) {
+    statusZacat = false;
+    zacatOdpocet--;
+  } else if (statusZacat) {
+    zacatOdpocet = odpocetTlacidiel;
+  }
+  
+  if (status == 0) {
+    if (plusOdpocet > 0) {
+      statusPlus = false;
+      plusOdpocet--;
+    } else if (statusPlus) {
+      plusOdpocet = odpocetTlacidiel;
+    }
+
+    if (minusOdpocet > 0) {
+      statusMinus = false;
+      minusOdpocet--;
+    } else if (statusMinus) {
+      minusOdpocet = odpocetTlacidiel;
+    }
+  }
+
+  if (hotovoOdpocet > 0) {
+    statusHotovo = false;
+    hotovoOdpocet--;
+  } else if (statusHotovo) {
+    hotovoOdpocet = odpocetTlacidiel;
+  }
+
+
+  if (status == 0) {
+    if (statusZacat) {
+      status = 1;
+      load();
+      return;
+    }
+  }
+
+  if (status == 1) {
+
+    if (statusPlus && rok <= 98) {
+      rok++;
+    }
+    if (statusMinus && rok >= 1) {
+      rok--;
+    }
+    
+    hodiny(20);
+    minuty(rok);
+
+    if (statusHotovo) {
+      status = 2;
+      load();
+      return;
+    }
+
+  }
+
+  if (status == 2) {
+
+    if (statusPlus && mesiac <= 11) {
+      mesiac++;
+    }
+    if (statusMinus && mesiac >= 2) {
+      mesiac--;
+    }
+    
+    if (mesiac < 10) {
+      zobraz(0, -1);
+      zobraz(1, -1);
+      zobraz(2, -1);
+      zobraz(3, mesiac);
+    } else {
+      zobraz(0, -1);
+      zobraz(1, -1);
+      zobraz(2, mesiac / 10);
+      zobraz(3, mesiac % 10);
+    }
+
+    if (statusHotovo) {
+      status = 3;
+      load();
+      return;
+    }
+
+  }
+
+  if (status == 3) {
+
+    if (statusPlus && den <= 30) {
+      den++;
+    }
+    if (statusMinus && den >= 2) {
+      den--;
+    }
+    
+    hodiny(den);
+    zobraz(2, -1);
+    zobraz(3, -1);
+
+    if (statusHotovo) {
+      status = 4;
+      load();
+      return;
+    }
+
+  }
+
+  if (status == 4) {
+
+    if (statusPlus && hodina <= 22) {
+      hodina++;
+    }
+    if (statusMinus && hodina >= 1) {
+      hodina--;
+    }
+    
+    hodiny(hodina);
+    zobraz(2, -1);
+    zobraz(3, -1);
+
+    if (statusHotovo) {
+      status = 5;
+      load();
+      return;
+    }
+
+  }
+
+  if (status == 5) {
+
+    if (statusPlus && minuta <= 58) {
+      minuta++;
+    }
+    if (statusMinus && minuta >= 2) {
+      minuta--;
+    }
+    
+    minuty(minuta);
+    zobraz(0, -1);
+    zobraz(1, -1);
+
+    if (statusHotovo) {
+      status = 6;
+      load();
+      return;
+    }
+
+  }
+
+  if (status == 6) {
+
+    if (statusPlus && sekunda <= 58) {
+      sekunda++;
+    }
+    if (statusMinus && sekunda >= 2) {
+      sekunda--;
+    }
+    
+    minuty(sekunda);
+    zobraz(0, -1);
+    zobraz(1, -1);
+
+    if (statusHotovo) {
+      status = 0;
+      rtc.setYear(rok);
+      rtc.setMonth(mesiac);
+      rtc.setDate(den);
+      rtc.setHour(hodina);
+      rtc.setMinute(minuta);
+      rtc.setSecond(sekunda);
+      load();
+      return;
+    }
+
+  }
+
+}
+
+
+void load() {
+
+  for (int i = 0; i < 23; i++) {
+    for (int x = 0; x < 4; x++) {
+
+      led2.write(x * 8, 0, loadingAnimacia[i]);
+      led.write(x * 8, 0, loadingAnimacia[i]);
+      
+    }
+  }
+
+}
+
+
+void rutinaHodiny() {
 
   int month = rtc.getMonth(century);
   int day = rtc.getDate();
@@ -173,8 +411,6 @@ void loop() {
 
   hodiny(hours);
   minuty(minutes);
-
-  delay(100);
 
 }
 
