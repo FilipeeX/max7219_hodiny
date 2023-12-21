@@ -202,8 +202,8 @@ void loop() {
   if (pocitadlo >= 100) {
 
     if (rtc.getHour(h12flag, pmFlag) >= 21 || rtc.getHour(h12flag, pmFlag) <= 6) {
-      led.setBrightness(4);
-      led2.setBrightness(4);
+      led.setBrightness(0);
+      led2.setBrightness(0);
     } else {
       led.setBrightness(15);
       led2.setBrightness(15);
