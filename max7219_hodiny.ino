@@ -148,10 +148,12 @@ int hodina = 12;
 int minuta = 30;
 int sekunda = 30;
 
+int poslednaMinuta = 69;
+
 
 void setup() {
 
-  // Serial.begin(9600);
+  Serial.begin(9600);
 
   pinMode(tlacidloZacat, INPUT_PULLUP);
   pinMode(tlacidloPlus, INPUT_PULLUP);
@@ -200,17 +202,24 @@ void setup() {
 void loop() {
 
   if (pocitadlo >= 100) {
+    
+    if (poslednaMinuta != rtc.getMinute()) {
 
-    if (rtc.getHour(h12flag, pmFlag) >= 21 || rtc.getHour(h12flag, pmFlag) <= 6) {
-      led.setBrightness(0);
-      led2.setBrightness(0);
-    } else {
-      led.setBrightness(15);
-      led2.setBrightness(15);
-    }
+      if (rtc.getHour(h12flag, pmFlag) >= 21 || rtc.getHour(h12flag, pmFlag) <= 6) {
+        led.setBrightness(0);
+        led2.setBrightness(0);
+      } else {
+        led.setBrightness(15);
+        led2.setBrightness(15);
+      }
 
-    if (status == 0) {
-      rutinaHodiny();
+      if (status == 0) {
+        rutinaHodiny();
+        Serial.println("0");
+      }
+
+      poslednaMinuta = rtc.getMinute();
+
     }
 
     pocitadlo = 0;
